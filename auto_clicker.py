@@ -1,4 +1,4 @@
-import sys
+import argparse
 import time
 
 import pyautogui
@@ -9,36 +9,53 @@ def get_cursor_position() -> tuple[int, int]:
 
 
 def send_left_click() -> None:
-    pyautogui.doubleClick()
+    pyautogui.click()
     print(f"Sent left click. Current cursor position: {get_cursor_position()}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Auto clicker with configurable delays.")
+    parser.add_argument("click_count", type=int, help="Number of left clicks to send")
+    parser.add_argument(
+        "--wait-before-first",
+        type=float,
+        default=3.0,
+        help="Seconds to wait before the first click (default: 3)",
+    )
+    parser.add_argument(
+        "--wait-between-clicks",
+        type=float,
+        default=0.25,
+        help="Seconds to wait between clicks (default: 0.25)",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
-    if len(sys.argv) != 2:
-        print("Usage: python auto_clicker.py <click_count>")
-        print("Example: python auto_clicker.py 100")
-        return 1
+    args = parse_args()
 
-    try:
-        click_count = int(sys.argv[1])
-    except ValueError:
-        print("Error: click_count must be an integer.")
-        return 1
-
-    if click_count < 0:
+    if args.click_count < 0:
         print("Error: click_count must be 0 or greater.")
         return 1
 
-    time.sleep(3)
+    if args.wait_before_first < 0:
+        print("Error: --wait-before-first must be 0 or greater.")
+        return 1
+
+    if args.wait_between_clicks < 0:
+        print("Error: --wait-between-clicks must be 0 or greater.")
+        return 1
+
+    time.sleep(args.wait_before_first)
 
     x, y = get_cursor_position()
     print(f"Clicking at current cursor position: ({x}, {y})")
 
-    for _ in range(click_count):
+    for _ in range(args.click_count):
         send_left_click()
-        time.sleep(0.2)
+        time.sleep(args.wait_between_clicks)
 
-    print(f"Done. Sent {click_count} left clicks.")
+    print(f"Done. Sent {args.click_count} left clicks.")
     return 0
 
 
