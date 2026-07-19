@@ -46,6 +46,8 @@ def main() -> int:
         print("Error: --wait-between-clicks must be 0 or greater.")
         return 1
 
+    print(f"Waiting for {args.wait_before_first} seconds before the first click...")
+    print(f"Will send {args.click_count} left clicks with {args.wait_between_clicks} seconds between each click.")
     time.sleep(args.wait_before_first)
 
     x, y = get_cursor_position()
