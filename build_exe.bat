@@ -46,4 +46,16 @@ if errorlevel 1 (
 echo.
 echo Build complete.
 echo EXE output: dist\GW2_AutoClicker.exe
+
+if exist "D:\GW2\addons\GW2TP" (
+    copy /y "dist\GW2_AutoClicker.exe" "D:\GW2\addons\GW2TP\"
+    if errorlevel 1 (
+        echo Failed to copy EXE to D:\GW2\addons\GW2TP.
+        exit /b 1
+    )
+    echo Copied EXE to D:\GW2\addons\GW2TP
+) else (
+    echo Destination folder does not exist: D:\GW2\addons\GW2TP
+)
+
 exit /b 0
