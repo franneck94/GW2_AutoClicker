@@ -1,19 +1,16 @@
 import sys
 import time
-import ctypes
 
-MOUSEEVENTF_LEFTDOWN = 0x0002
-MOUSEEVENTF_LEFTUP = 0x0004
+import pyautogui
+
+
+def get_cursor_position() -> tuple[int, int]:
+    return pyautogui.position()
 
 
 def send_left_click() -> None:
-    ctypes.windll.user32.mouse_event(
-        MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP,
-        0,
-        0,
-        0,
-        0,
-    )
+    pyautogui.doubleClick()
+    print(f"Sent left click. Current cursor position: {get_cursor_position()}")
 
 
 def main() -> int:
@@ -31,6 +28,11 @@ def main() -> int:
     if click_count < 0:
         print("Error: click_count must be 0 or greater.")
         return 1
+
+    time.sleep(3)
+
+    x, y = get_cursor_position()
+    print(f"Clicking at current cursor position: ({x}, {y})")
 
     for _ in range(click_count):
         send_left_click()

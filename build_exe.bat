@@ -16,6 +16,17 @@ if "%PYTHON_CMD%"=="" (
     exit /b 1
 )
 
+if exist requirements.txt (
+    echo Installing project requirements...
+    %PYTHON_CMD% -m pip install -r requirements.txt
+    if errorlevel 1 (
+        echo Failed to install requirements.
+        exit /b 1
+    )
+) else (
+    echo requirements.txt not found. Continuing without it.
+)
+
 %PYTHON_CMD% -m pip show PyInstaller >nul 2>nul
 if errorlevel 1 (
     echo PyInstaller is not installed. Installing it now...
