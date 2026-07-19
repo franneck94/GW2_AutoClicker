@@ -54,10 +54,10 @@ def main() -> int:
     print(f"Clicking at current cursor position: ({x}, {y})")
 
     for _ in range(args.click_count):
-        send_left_click()
+        pyautogui.doubleClick()
         time.sleep(args.wait_between_clicks)
 
-    print(f"Done. Sent {args.click_count} left clicks.")
+    print(f"Done. Sent {args.click_count} double clicks.")
     return 0
 
 
