@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--wait-between-clicks",
         type=float,
-        default=0.25,
+        default=0.300,
         help="Seconds to wait between clicks (default: 0.25)",
     )
     return parser.parse_args()
