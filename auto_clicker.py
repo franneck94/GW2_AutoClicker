@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--wait-between-clicks",
         type=float,
-        default=0.300,
+        default=0.400,
         help="Seconds to wait between clicks (default: 0.25)",
     )
     return parser.parse_args()
@@ -48,6 +48,7 @@ def main() -> int:
 
     print(f"Waiting for {args.wait_before_first} seconds before the first click...")
     print(f"Will send {args.click_count} left clicks with {args.wait_between_clicks} seconds between each click.")
+
     time.sleep(args.wait_before_first)
 
     x, y = get_cursor_position()
