@@ -1,7 +1,9 @@
 import argparse
+import threading
 import time
 
 import pyautogui
+from pynput import keyboard
 
 
 def get_cursor_position() -> tuple[int, int]:
@@ -28,7 +30,47 @@ def parse_args() -> argparse.Namespace:
         default=0.400,
         help="Seconds to wait between clicks (default: 0.25)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug output",
+    )
     return parser.parse_args()
+
+
+def _create_stop_listener(stop_event: threading.Event) -> keyboard.Listener:
+    ctrl_pressed = False
+    c_pressed = False
+
+    def on_press(key: keyboard.Key | keyboard.KeyCode | None) -> bool:
+        nonlocal ctrl_pressed
+        nonlocal c_pressed
+
+        if key in (keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r):
+            ctrl_pressed = True
+            print("Ctrl key pressed.")
+        if key == keyboard.KeyCode.from_char("c"):
+            c_pressed = True
+            print("C key pressed.")
+
+        if ctrl_pressed and c_pressed:
+            stop_event.set()
+            print("Stop requested by user (Ctrl+C).")
+            return False
+        return True
+
+    def on_release(key: keyboard.Key | keyboard.KeyCode | None) -> bool:
+        nonlocal ctrl_pressed
+        nonlocal c_pressed
+
+        if key in (keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r):
+            ctrl_pressed = False
+        if key == keyboard.KeyCode.from_char("c"):
+            c_pressed = False
+
+        return True
+
+    return keyboard.Listener(on_press=on_press, on_release=on_release)
 
 
 def main() -> int:
@@ -46,19 +88,42 @@ def main() -> int:
         print("Error: --wait-between-clicks must be 0 or greater.")
         return 1
 
+    debug_mode = args.debug
+
     print(f"Waiting for {args.wait_before_first} seconds before the first click...")
     print(f"Will send {args.click_count} left clicks with {args.wait_between_clicks} seconds between each click.")
+    print("Press Ctrl+C to stop early.")
+
+    stop_event = threading.Event()
+    listener = _create_stop_listener(stop_event)
+    listener.start()
 
     time.sleep(args.wait_before_first)
 
     x, y = get_cursor_position()
     print(f"Clicking at current cursor position: ({x}, {y})")
 
-    for _ in range(args.click_count):
-        pyautogui.doubleClick()
-        time.sleep(args.wait_between_clicks)
+    for i in range(args.click_count):
+        if stop_event.is_set():
+            print("Stopping before sending the next click.")
+            break
 
-    print(f"Done. Sent {args.click_count} double clicks.")
+        print(f"Click number {i + 1} / {args.click_count}")
+        if not debug_mode:
+            pyautogui.doubleClick()
+
+        if stop_event.wait(timeout=args.wait_between_clicks):
+            print("Stopping during wait interval.")
+            break
+
+    listener.stop()
+    listener.join()
+
+    if stop_event.is_set():
+        print("Stopped by user.")
+    else:
+        print(f"Done. Sent {i + 1} double clicks.")
+
     return 0
 
 
