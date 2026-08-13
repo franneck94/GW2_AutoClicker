@@ -1,11 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from pathlib import Path
+
+project_dir = Path(SPECPATH)
 
 a = Analysis(
     ['auto_clicker.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        (str(project_dir / "media" / "stop.mp3"), "media"),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

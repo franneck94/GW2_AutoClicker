@@ -143,7 +143,7 @@ def main() -> int:
         print("frozen dir")
         mp3_path = Path(sys._MEIPASS) / "media" / "stop.mp3"  # type: ignore
     else:
-        mp3_path = Path(__file__).parent.parent / "media" / "stop.mp3"
+        mp3_path = Path(__file__).parent / "media" / "stop.mp3"
 
     if mp3_path.exists():
         print("playing sound")
