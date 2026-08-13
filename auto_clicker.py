@@ -1,8 +1,11 @@
 import argparse
 import threading
+import sys
 import time
+from pathlib import Path
 
 import pyautogui
+import pygame
 from pynput import keyboard
 
 
@@ -16,8 +19,15 @@ def send_left_click() -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Auto clicker with configurable delays.")
-    parser.add_argument("click_count", type=int, help="Number of left clicks to send")
+    parser = argparse.ArgumentParser(
+        description="Auto clicker with configurable delays."
+    )
+    parser.add_argument(
+        "click_count",
+        type=int,
+        help="Number of left clicks to send",
+        default=0,
+    )
     parser.add_argument(
         "--wait-before-first",
         type=float,
@@ -90,8 +100,12 @@ def main() -> int:
 
     debug_mode = args.debug
 
-    print(f"Waiting for {args.wait_before_first} seconds before the first click...")
-    print(f"Will send {args.click_count} left clicks with {args.wait_between_clicks} seconds between each click.")
+    print(
+        f"Waiting for {args.wait_before_first} seconds before the first click..."
+    )
+    print(
+        f"Will send {args.click_count} left clicks with {args.wait_between_clicks} seconds between each click."
+    )
     print("Press Ctrl+C to stop early.")
 
     stop_event = threading.Event()
@@ -123,6 +137,21 @@ def main() -> int:
         print("Stopped by user.")
     else:
         print(f"Done. Sent {i + 1} double clicks.")
+
+    pygame.mixer.init()
+    if getattr(sys, "frozen", False):
+        print("frozen dir")
+        mp3_path = Path(sys._MEIPASS) / "media" / "stop.mp3"  # type: ignore
+    else:
+        mp3_path = Path(__file__).parent.parent / "media" / "stop.mp3"
+
+    if mp3_path.exists():
+        print("playing sound")
+        pygame.mixer.music.load(str(mp3_path))
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            time.sleep(1.0)
 
     return 0
 
